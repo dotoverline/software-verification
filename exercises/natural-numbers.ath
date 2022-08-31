@@ -1,0 +1,107 @@
+set-flag print-var-sorts "off"
+set-flag print-qvar-sorts "off"
+
+module NaturalNumbers {
+	
+	#___Definitions and axioms
+	datatype N := zero | (S N)
+	declare Plus: [N N] -> N [+]
+	define [n m t] := [?n:N ?m:N ?t:N]
+
+	assert* Plus-zero-axiom := (n + zero = n)
+	assert* Plus-S-axiom := (n + S m = S (n + m)) # n+(m+1)=(n+m)+1
+	
+	#___PROPERTIES
+
+	#___0+n=n
+	define zero-Plus-property := (forall n . zero + n = n)
+
+	by-induction zero-Plus-property {
+	  zero => (!chain [(zero + zero)
+	  		= zero [Plus-zero-axiom]])
+	| (n as (S m)) =>
+	      let {induction-hypothesis := (zero + m = m)}
+		(!chain [(zero + S m)
+		       = (S (zero + m))      [Plus-S-axiom]
+		       = (S m)               [induction-hypothesis]])
+	}
+
+	#___(n+1)+m=(n+m)+1
+	define S-Plus-property := (forall m n . ((S n) + m) = (S(n + m)))
+
+	by-induction S-Plus-property {
+		zero => pick-any n (
+			!chain [((S n) + zero)
+				= (S n) 		[Plus-zero-axiom]
+				= (S(n + zero))		[Plus-zero-axiom]])
+		| (S m) => 
+			let {induction-hypothesis := ( forall n . (S n) + m = (S (n + m)))}
+			pick-any n (
+			!chain [((S n) + (S m))
+				=(S ((S n) + m))	[Plus-S-axiom]
+				=(S (S (n + m)))	[induction-hypothesis]
+				=(S (n + (S m)))	[Plus-S-axiom]])
+	}
+	
+	#___(n+m)+t=n+(m+t)
+	define associativity := (forall n m t . (n + m) + t = n + (m + t))
+
+	by-induction associativity {
+	  zero =>
+	    pick-any m t
+	      (!chain [((zero + m) + t)
+		       = (m + t)          [zero-Plus-property]
+		       = (zero + (m + t)) [zero-Plus-property]])
+	 | (S n) => 
+	    let {induction-hypothesis :=
+		   (forall ?m ?t . (n + ?m) + ?t = n + (?m + ?t))}
+	      pick-any m t
+		(!chain [(((S n) + m) + t)
+			=((S (n + m)) + t) [S-Plus-property]
+			=(S ((n + m) + t)) [S-Plus-property]
+			=(S (n + (m + t))) [induction-hypothesis]
+			=((S n) + (m + t)) [S-Plus-property]])
+	}
+	
+	#___m+n=n+m
+	define commutativity := (forall n m  . m + n = n + m)
+
+	by-induction commutativity {
+		zero => pick-any n
+			(!chain [(n + zero)
+				= n		[Plus-zero-axiom]
+				=(zero + n)	[zero-Plus-property]])
+		| (S m) =>
+			let {induction-hypothesis := (forall n . n + m = m + n)}
+			pick-any n (
+			!chain [(n + (S m))
+				=(S (n + m))	[Plus-S-axiom]
+				=(S (m + n))	[induction-hypothesis]
+				=((S m) + n)	[S-Plus-property ]])
+	}
+
+	
+	#Another proof of commutativity. Main idea and base case are the same. 
+	by-induction commutativity {
+		zero => pick-any n
+			(!chain [(n + zero)
+				= n		[Plus-zero-axiom]
+				=(zero + n)	[zero-Plus-property]])
+		| (S m) =>
+			let {induction-hypothesis := (forall n . n + m = m + n)}
+			pick-any n (
+			!chain [(n + (S m))
+				=(n + (S(m + zero)))	[Plus-zero-axiom]
+				=(n + (m + S(zero)))	[Plus-S-axiom]
+				=((n + m) + S(zero))	[associativity]
+				=((m + n) + S(zero))	[induction-hypothesis]
+				=(m + (n + S(zero)))	[associativity]
+				=(m + S(n + zero))	[Plus-S-axiom]
+				=(m + (S n))		[Plus-zero-axiom]
+				=(m + S(zero + n))	[zero-Plus-property]
+				=(m + (S(zero) + n))	[S-Plus-property]
+				=((m + S(zero)) + n)	[associativity]
+				=((S (m + zero)) + n)	[Plus-S-axiom]
+				=((S m) + n)		[Plus-zero-axiom]])
+	}
+}
