@@ -1,0 +1,17 @@
+set-flag print-var-sorts "off"
+set-flag print-qvar-sorts "off"
+
+load "NN-sum"
+
+module NN-times{
+	open NN-sum
+	
+	declare times: [N N] -> N [*]
+	assert* Times-zero := (x * zero = zero)
+	assert* Times-nonzero := (x * S y = x * y + x)
+	
+	declare one: N
+	
+	assert one-definition := (one = S zero)
+	
+}
