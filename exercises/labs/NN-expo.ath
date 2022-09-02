@@ -1,0 +1,41 @@
+set-flag print-var-sorts "off"
+set-flag print-qvar-sorts "off"
+
+load "NN-times"
+open NN-times
+
+module NN-expo{
+	declare **: [N N] -> N
+	set-precedence ** 400
+	assert Power-right-zero := (forall x . x ** zero = one)
+	assert Power-right-nonzero:=(forall n x . x ** S n = x * (x ** n))
+	
+	
+	#___PROPERTIES
+	
+	#___(x*y)**n=(x**n)*(y**n)
+	define expo-associative := (forall n x y . (x * y) ** n = (x ** n) * (y ** n))
+	
+	by-induction expo-associative {
+	zero => pick-any x y
+	(!chain [((x * y) ** zero)
+		-->(one)				[Power-right-zero]
+		<--(one * one)			[Times-right-one]
+		<--((x ** zero) * (y ** zero))	[Power-right-zero]])
+	| (S n) => 
+		let {hyp-ind:= (forall x y . (x * y) ** n = x ** n * y ** n) }
+		pick-any x y (
+			!chain [((x * y) ** (S n))				
+				=((x * y) * (x * y) ** n)		[Power-right-nonzero]
+				=((x * y) * ((x ** n) * (y ** n)))	[hyp-ind]
+				=(x * (y * ((x ** n * y ** n))))	[times-associate]
+				=(x * (y * (y ** n * x ** n)))		[times-commute]
+				=(x * ((y * y ** n ) * x ** n))		[times-associate]
+				=(x * (y ** S n * x ** n))		[Power-right-nonzero]
+				=(x * (x ** n * y ** S n))		[times-commute]
+				=((x * x ** n) * y ** S n)		[times-associate]
+				=(x ** S n * y ** S n)			[Power-right-nonzero]
+				])
+	}
+	
+}

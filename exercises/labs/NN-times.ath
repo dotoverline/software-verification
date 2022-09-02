@@ -2,16 +2,36 @@ set-flag print-var-sorts "off"
 set-flag print-qvar-sorts "off"
 
 load "NN-sum"
+open NN-sum
 
 module NN-times{
-	open NN-sum
 	
+	#___Axioms
 	declare times: [N N] -> N [*]
 	assert* Times-zero := (x * zero = zero)
 	assert* Times-nonzero := (x * S y = x * y + x)
 	
 	declare one: N
-	
 	assert one-definition := (one = S zero)
 	
+	#___PROPERTIES
+	
+	#___x*1=x
+	define Times-right-one := (forall x . x * one = x)
+	conclude Times-right-one
+		pick-any x:N
+		(!chain [ (x * one)
+			= (x * ( S zero ))	[one-definition]
+			= ((x * zero) +  x)	[Times-nonzero]
+			= (zero + x)		[Times-zero]
+			= x			[zero-Plus-property]])
+			
+	
+	#___x*y=y*x
+	define times-commute := (forall x y . x * y = y * x)
+	assert* times-commute
+	
+	#___x*(y*z)=(x*y)*z
+	define times-associate := (forall x y z . (x * (y * z) = (x * y) * z))
+	assert* times-associate
 }
