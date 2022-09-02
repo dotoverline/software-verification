@@ -15,6 +15,7 @@ module NN-times{
 	assert one-definition := (one = S zero)
 	
 	#___PROPERTIES
+	assert* zero-Times-property := (zero * x = zero)
 	
 	#___x*1=x
 	define Times-right-one := (forall x . x * one = x)
@@ -27,6 +28,25 @@ module NN-times{
 			= x			[zero-Plus-property]])
 			
 	
+	#___x*(y+z)=x*y+x*z
+	define times-dist := (forall z x y . x * (y + z) = x * y + x * z)
+	by-induction times-dist {
+	zero => pick-any x y (
+		!chain [(x * (y + zero))
+			= (x * y)		[Plus-zero-axiom]
+			= (x * y + zero)	[Plus-zero-axiom]
+			= (x * y + x * zero)	[Times-zero]])
+	| (S z) =>
+		let {ind-hyp := (forall x y . x * (y + z) = x * y + x * z)}
+		pick-any x y (
+		!chain [( x * (y + (S z)))
+			=(x * (S (y + z)))	[Plus-S-axiom]
+			=(x * (y + z) + x)	[Times-nonzero]
+			=((x * y + x * z) + x)	[ind-hyp]
+			=(x * y + (x * z + x))	[associativity]
+			=(x * y + x * S z)	[Times-nonzero]])		
+	}
+	
 	#___x*y=y*x
 	define times-commute := (forall x y . x * y = y * x)
 	assert* times-commute
@@ -34,4 +54,10 @@ module NN-times{
 	#___x*(y*z)=(x*y)*z
 	define times-associate := (forall x y z . (x * (y * z) = (x * y) * z))
 	assert* times-associate
+	
 }
+
+
+
+
+
