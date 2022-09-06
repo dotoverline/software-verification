@@ -25,8 +25,8 @@ module NN-times{
 			= (x * ( S zero ))	[one-definition]
 			= ((x * zero) +  x)	[Times-nonzero]
 			= (zero + x)		[Times-zero]
-			= x			[zero-Plus-property]])
 			
+			= x			[zero-Plus-property]])
 	
 	#___x*(y+z)=x*y+x*z
 	define times-dist := (forall z x y . x * (y + z) = x * y + x * z)
@@ -50,10 +50,27 @@ module NN-times{
 	#___x*y=y*x
 	define times-commute := (forall x y . x * y = y * x)
 	assert* times-commute
-	
+		
 	#___x*(y*z)=(x*y)*z
-	define times-associate := (forall x y z . (x * (y * z) = (x * y) * z))
-	assert* times-associate
+	define times-associate := (forall z x y . ((x * y) * z) = (x * (y * z)))
+	#assert* times-associate
+	by-induction times-associate {
+	zero => pick-any x y (
+		!chain [((x * y) * zero)
+			=(zero)			[Times-zero]
+			=(x * zero)		[Times-zero]
+			=(x * (y * zero))	[Times-zero]])
+	| (S z) =>
+		let {ind-hyp := (forall x y . ((x * y) * z) = (x * (y * z)))}
+		pick-any x y (
+		!chain [((x * y) * S z)
+			=(((x * y) * z) + (x * y))	[Times-nonzero]
+			=((x * (y * z)) + (x * y))	[ind-hyp]
+			=((x * y) + (x * (y * z)))	[commutativity]
+			=(x * (y + (y * z)))		[times-dist]
+			=(x * ((y * z) + y))		[commutativity]
+			=(x * (y * (S z)))		[Times-nonzero]])
+	}
 	
 }
 
