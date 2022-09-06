@@ -49,11 +49,13 @@ module NN-times{
 	
 	#___x*y=y*x
 	define times-commute := (forall x y . x * y = y * x)
+	
+	
 	assert* times-commute
 		
 	#___x*(y*z)=(x*y)*z
 	define times-associate := (forall z x y . ((x * y) * z) = (x * (y * z)))
-	#assert* times-associate
+	
 	by-induction times-associate {
 	zero => pick-any x y (
 		!chain [((x * y) * zero)
