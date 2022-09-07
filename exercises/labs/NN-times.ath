@@ -9,24 +9,51 @@ module NN-times{
 	#___Axioms
 	declare times: [N N] -> N [*]
 	assert* Times-zero := (x * zero = zero)
-	assert* Times-nonzero := (x * S y = x * y + x)
+	#___x*(y+1)=x*y + x
+	assert* Times-nonzero := (x * S y = x * y + x) 
 	
 	declare one: N
 	assert one-definition := (one = S zero)
 	
 	#___PROPERTIES
-	assert* zero-Times-property := (zero * x = zero)
 	
-	#___x*1=x
-	define Times-right-one := (forall x . x * one = x)
-	conclude Times-right-one
-		pick-any x:N
-		(!chain [ (x * one)
-			= (x * ( S zero ))	[one-definition]
-			= ((x * zero) +  x)	[Times-nonzero]
-			= (zero + x)		[Times-zero]
-			
-			= x			[zero-Plus-property]])
+	#___0*x=x
+	define zero-Times := (forall x . ((zero * x) = zero))
+
+	by-induction zero-Times {
+	zero => (!chain [(zero * zero)
+			= (zero) 	[Times-zero]])
+	|(S x) => let {hyp-induction := (zero * x = zero)}
+		(!chain [(zero * (S x))
+			-->((zero * x) + zero)	[Times-nonzero]
+			-->(zero * x)		[Plus-zero-axiom]
+			-->(zero)		[hyp-induction]])
+	}
+	
+	#___(x+1)*y=x*y+y
+	define nonzero-Times := (forall y x . (S x) * y = (x * y) + y)
+	
+	by-induction nonzero-Times {
+		
+	zero => pick-any x:N (
+		!chain [((S x) * zero)
+			=(zero) 		[Times-zero]
+			=(zero + zero)		[Plus-zero-axiom]
+			=(x * zero + zero)	[Times-zero]])
+	| (S y) => 
+		let {hyp-ind := (forall x . (S x) * y = (x * y) + y)}
+		pick-any x:N (
+		!chain [((S x) * (S y))
+			=( ((S x) * y) + S x)		[Times-nonzero]
+			=(((x * y) + y) + (S x))	[hyp-ind]
+			=(S (((x * y) + y) + x))	[Plus-S-axiom]
+			=(S ((x * y) + (y + x)))	[associativity]
+			=(S ((x * y) + (x + y)))	[commutativity]
+			=(S (((x * y) + x) + y))	[associativity]
+			=(((x * y) + x) + S y)		[Plus-S-axiom]
+			=((x * S y) + S y)		[Times-nonzero]])
+	}
+	
 	
 	#___x*(y+z)=x*y+x*z
 	define times-dist := (forall z x y . x * (y + z) = x * y + x * z)
@@ -48,10 +75,20 @@ module NN-times{
 	}
 	
 	#___x*y=y*x
-	define times-commute := (forall x y . x * y = y * x)
+	define times-commute := (forall y x . x * y = y * x)
 	
-	
-	assert* times-commute
+	by-induction times-commute{
+	zero  => pick-any x (
+		!chain [(x * zero)
+			=(zero)		[Times-zero]
+			=(zero * x)	[zero-Times]])
+	| (S y) => let {hyp-ind := (forall x . x * y = y * x)}
+		pick-any x (
+		!chain [(x * (S y))
+			-->((x * y) + x)	[Times-nonzero]
+			-->((y * x) + x)		[hyp-ind]
+			<--((S y) * x)		[nonzero-Times]])
+	}
 		
 	#___x*(y*z)=(x*y)*z
 	define times-associate := (forall z x y . ((x * y) * z) = (x * (y * z)))
@@ -73,10 +110,4 @@ module NN-times{
 			=(x * ((y * z) + y))		[commutativity]
 			=(x * (y * (S z)))		[Times-nonzero]])
 	}
-	
 }
-
-
-
-
-
