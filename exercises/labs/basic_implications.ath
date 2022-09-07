@@ -1,27 +1,45 @@
 
+declare A, B, C, D, E: Boolean
 
 #____EXERCISE 2.1____
 # assuming({A & B => C}) derive A => B => C
+module Ex1 {
+	#__Proof 1
+	assert premise-1 := (A & B ==> C)
 
-declare A, B, C, D, E: Boolean
+	assume A
+	 assume B
+	  conclude C
+	   (!mp premise-1 (!both A B))	
 
-#__Proof 1
-assert premise-1 := (A & B ==> C)
-
-assume A
- assume B
-  conclude C
-   (!mp premise-1 (!both A B))	
-
-#__Proof 2 (almost the same as proof 1)
-assume premise-1 := (A & B ==> C)
- assume A
-  assume B
-   let { A&B := (!both A B)}
-   conclude C
-    (!mp premise-1 A&B)	
+	#__Proof 2 (almost the same as proof 1)
+	assume premise-1 := (A & B ==> C)
+	 assume A
+	  assume B
+	   let { A&B := (!both A B)}
+	   conclude C
+	    (!mp premise-1 A&B)
+}
     
  
 #____EXERCISE 2.2____
-# assuming( {A | B ==> C | D ==> E}) == ((A | B) ==> (C | D) ==> E)
-#derive A ==> ~ E ==> ~ C) 
+# assuming( {A | B ==> C | D ==> E})
+#derive A ==> ~ E ==> ~ C)
+
+module Ex2 {
+ assert premise := (A | B ==> C | D ==> E)
+ assume A 
+  let {C|D->E := (!mp premise (!left-either A B))}
+  assume (~E)
+   let {-C|D := (!mt C|D->E (~E))}
+   (!by-contradiction (~C)
+    assume C
+     let {C|D := (!left-either C D)}
+     (!absurd (~E) (!mp C|D->E C|D))
+   )
+}
+   
+
+
+
+
