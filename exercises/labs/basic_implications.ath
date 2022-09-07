@@ -1,15 +1,27 @@
 
 
-#Exercise 2.1
+#____EXERCISE 2.1____
 # assuming({A & B => C}) derive A => B => C
 
 declare A, B, C, D, E: Boolean
+
+#__Proof 1
 assert premise-1 := (A & B ==> C)
 
 assume A
  assume B
   conclude C
    (!mp premise-1 (!both A B))	
-   
+
+#__Proof 2 (almost the same as proof 1)
+assume premise-1 := (A & B ==> C)
+ assume A
+  assume B
+   let { A&B := (!both A B)}
+   conclude C
+    (!mp premise-1 A&B)	
+    
+ 
+#____EXERCISE 2.2____
 # assuming( {A | B ==> C | D ==> E}) == ((A | B) ==> (C | D) ==> E)
 #derive A ==> ~ E ==> ~ C) 
